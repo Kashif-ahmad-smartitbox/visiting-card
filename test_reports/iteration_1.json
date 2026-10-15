@@ -1,0 +1,44 @@
+{
+  "summary": "Full backend (18 pytest cases, real GPT-5.5 extraction) + frontend E2E (Playwright, desktop + mobile) of CardPulse. All requested flows work: register (GSTIN validation + uppercase, duplicate mobile/email toasts), WA welcome logged as simulated, admin login/logout, Scan Cards PNG+PDF multi-upload extracts Priya Nair / GREENPOWER SOLAR and logs text + vCard notification, Contacts search/source/added-by filters, drawer edit/save, vCard download, re-send WA, delete, CSV export, Team add/role/deactivate/remove + member 403s, WA simulator text search ('solar companies in haryana') + card attach (source=whatsapp) + greeting help, Settings profile/org save persists, WA panel SIMULATION + webhook URL (verify token only for platform owner), webhook GET verify/403 and POST inbound for registered and unknown numbers, tenant isolation (404s), Google session -> /onboarding -> org completion. The only real bug: brute-force lockout does not work behind the ingress.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/auth/login", "issue": "Brute-force lockout does not work. The identifier is request.client.host + email, but behind K8s ingress client.host is the ingress pod IP, and that changes between requests (seen 10.79.138.2 and 10.79.138.5). Failed attempts get split across several counters, so after 6 wrong passwords the response is still 401 instead of 429. Fix: take the first IP from the X-Forwarded-For header (fall back to client.host), or lock per email only.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "PATCH /api/team/{id}", "issue": "Password has no minimum length. password '1' was accepted, unlike register and add-member, which require at least 6 characters."},
+      {"endpoint": "POST /api/auth/register, /api/auth/onboard, PUT /api/org", "issue": "Empty or whitespace org_name, name and address are accepted (registered an org with org_name='' and name=''; PUT /org name='   ' was saved as ''). Add Pydantic min_length or strip-and-check."},
+      {"endpoint": "PUT /api/org", "issue": "Org mobile is not validated (the ensure-length check is skipped)."},
+      {"endpoint": "POST /api/contacts/scan & WA image", "issue": "No duplicate detection. Scanning the same card again creates another contact and sends another WhatsApp notification to the same person, so they can be spammed. Consider deduping on org_id+mobile/email."},
+      {"endpoint": "PATCH /api/team/{id}", "issue": "An admin can demote or deactivate the other admins. Only demoting yourself is blocked, so nothing guarantees at least one active admin remains (low risk)."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Global toasts (top-right)", "issues": ["Sonner toasts cover the page header action buttons (Add member, Open simulator) and the contact drawer close (X) button / 'Added by' line for several seconds. Error toasts stay on screen after navigating from /register to /app. Consider bottom-right position or a shorter duration."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_cardpulse_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Fix login brute-force identifier to use X-Forwarded-For first IP (or email-only) so the lockout triggers after 5 failures",
+    "Add min-length 6 password validation on PATCH /api/team/{id}",
+    "Reject blank org_name/name/address in register/onboard/org update",
+    "Optional: dedupe contacts on re-scan to avoid duplicate rows and repeat WA notifications"
+  ],
+  "critical_code_review_comments": [
+    "server.py is 591 lines. It is under 700 but close; consider splitting routes (auth/team/contacts/wa) into routers",
+    "pipeline.search_contacts loads up to 5000 contacts per query into memory and scores them in Python. This won't scale; use a Mongo text index or a $regex $or query",
+    "export CSV does not escape formula-leading cells (=,+,-,@), so CSV injection is possible from AI-extracted text",
+    "login_attempts keyed by proxy IP (see critical issue)",
+    "process_inbound looks the user up by exact 'from' digits. That works for Meta wa_id format, but a user saved with another country code format would not match (normalize_phone defaults to 91 for 10-digit numbers only)"
+  ],
+  "updated_files": ["/app/backend/tests/test_cardpulse_api.py", "/app/backend/tests/__init__.py"],
+  "success_rate": {"backend": "94% (17/18; only the brute-force lockout fails)", "frontend": "100% of requested flows"},
+  "test_credentials": "Admin ceo@smartitbox.in / CardPulse@2026 works; bcrypt $2b$ hash, httpOnly secure cookies confirmed.",
+  "seed_data_creation": "TEST_ orgs/users (mobiles 919999xxxxxx), contacts, wa_messages, sessions and upload files were created during testing and all cleaned up. DB now has only the seeded admin + SmartITBox org.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run pytest with '-n 0' (xdist is installed; parallel workers break the module-scoped fixtures and cleanup). The test file auto-cleans TEST_ data via direct pymongo (mongodb://localhost:27017, test_database). AI scan takes ~5-10s. Voice note (Whisper) was NOT tested.",
+  "rca of the issue": "Lockout: server.py login() uses ident=f'{request.client.host}:{email}'. Mongo login_attempts showed separate docs for 10.79.138.2 and 10.79.138.5 with counts of 3/3 and 4/2, so no single counter reached 5. Repro: POST /api/auth/login with a wrong password 6 times via the public URL; the 6th call returns 401, not 429. Mitigation: ip = request.headers.get('x-forwarded-for','').split(',')[0].strip() or request.client.host."
+}

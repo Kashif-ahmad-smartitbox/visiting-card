@@ -87,7 +87,7 @@ export default function App() {
       <BrowserRouter>
         <AuthProvider>
           <AppRouter />
-          <Toaster theme="dark" position="top-right" richColors />
+          <Toaster theme="dark" position="bottom-right" duration={3500} richColors />
         </AuthProvider>
       </BrowserRouter>
     </div>

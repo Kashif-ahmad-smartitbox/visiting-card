@@ -111,6 +111,12 @@ class QueryIn(BaseModel):
 
 
 # ---------- helpers ----------
+def require_text(**fields):
+    for k, v in fields.items():
+        if v is not None and not v.strip():
+            raise HTTPException(400, f"{k.replace('_', ' ').capitalize()} is required")
+
+
 def clean_gstin(g):
     g = (g or "").strip().upper()
     if g and not GSTIN_RE.match(g):
@@ -129,6 +135,7 @@ async def ensure_mobile_free(mobile, exclude_user_id=None):
 
 
 async def create_org(data: OrgIn, email):
+    require_text(organisation_name=data.org_name, address=data.address)
     mobile = normalize_phone(data.mobile)
     org = {"id": new_id("org"), "name": data.org_name.strip(), "gstin": clean_gstin(data.gstin),
            "address": data.address.strip(), "mobile": mobile, "email": email, "website": "", "created_at": now()}
@@ -153,6 +160,7 @@ async def me_payload(user):
 @api.post("/auth/register")
 async def register(data: RegisterIn, response: Response):
     email = data.email.lower()
+    require_text(name=data.name, organisation_name=data.org_name, address=data.address)
     if await db.users.find_one({"email": email}):
         raise HTTPException(400, "Email already registered")
     if len(data.password) < 6:
@@ -173,7 +181,8 @@ async def register(data: RegisterIn, response: Response):
 @api.post("/auth/login")
 async def login(data: LoginIn, request: Request, response: Response):
     email = data.email.lower()
-    ident = f"{request.client.host}:{email}"
+    ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host
+    ident = f"{ip}:{email}"
     att = await db.login_attempts.find_one({"identifier": ident})
     if att and att.get("count", 0) >= 5:
         locked = datetime.fromisoformat(att["last"]) + timedelta(minutes=15)
@@ -260,6 +269,7 @@ async def logout(request: Request, response: Response):
 @api.put("/profile")
 async def update_profile(data: ProfileUpdate, user=Depends(get_org_user)):
     upd = {k: v.strip() for k, v in data.model_dump(exclude_none=True).items()}
+    require_text(name=data.name)
     if "mobile" in upd:
         upd["mobile"] = normalize_phone(upd["mobile"])
         await ensure_mobile_free(upd["mobile"], user["user_id"])
@@ -271,10 +281,13 @@ async def update_profile(data: ProfileUpdate, user=Depends(get_org_user)):
 @api.put("/org")
 async def update_org(data: OrgUpdate, user=Depends(get_admin)):
     upd = {k: v.strip() for k, v in data.model_dump(exclude_none=True).items()}
+    require_text(organisation_name=data.name)
     if "gstin" in upd:
         upd["gstin"] = clean_gstin(upd["gstin"])
-    if "mobile" in upd:
+    if upd.get("mobile"):
         upd["mobile"] = normalize_phone(upd["mobile"])
+        if len(upd["mobile"]) < 11:
+            raise HTTPException(400, "Enter a valid mobile number with country code")
     if upd:
         await db.organizations.update_one({"id": user["org_id"]}, {"$set": upd})
     return await get_org(user["org_id"])
@@ -294,6 +307,7 @@ async def list_team(user=Depends(get_org_user)):
 @api.post("/team")
 async def add_member(data: MemberIn, user=Depends(get_admin)):
     email = data.email.lower()
+    require_text(name=data.name)
     if await db.users.find_one({"email": email}):
         raise HTTPException(400, "Email already registered")
     if data.role not in ("admin", "member"):
@@ -324,8 +338,12 @@ async def _org_member(user, member_id):
 
 @api.patch("/team/{member_id}")
 async def update_member(member_id: str, data: MemberUpdate, user=Depends(get_admin)):
-    await _org_member(user, member_id)
+    target = await _org_member(user, member_id)
     upd = data.model_dump(exclude_none=True)
+    require_text(name=data.name)
+    if target["role"] == "admin" and (upd.get("role") == "member" or upd.get("active") is False):
+        if await db.users.count_documents({"org_id": user["org_id"], "role": "admin", "active": {"$ne": False}}) <= 1:
+            raise HTTPException(400, "At least one active admin is required")
     if member_id == user["user_id"] and (upd.get("role") == "member" or upd.get("active") is False):
         raise HTTPException(400, "You cannot demote or deactivate yourself")
     if "role" in upd and upd["role"] not in ("admin", "member"):
@@ -334,6 +352,8 @@ async def update_member(member_id: str, data: MemberUpdate, user=Depends(get_adm
         upd["mobile"] = normalize_phone(upd["mobile"])
         await ensure_mobile_free(upd["mobile"], member_id)
     if "password" in upd:
+        if len(upd["password"]) < 6:
+            raise HTTPException(400, "Password must be at least 6 characters")
         upd["password_hash"] = hash_password(upd.pop("password"))
     if upd:
         await db.users.update_one({"user_id": member_id}, {"$set": upd})

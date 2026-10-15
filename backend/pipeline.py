@@ -71,6 +71,13 @@ async def save_cards(user, data, mime, source, notify=True):
                "confidence": float(card.get("confidence") or 0),
                "source": source, "added_by": user["user_id"], "added_by_name": user["name"],
                "card_file": path, "card_mime": mime, "wa_notified": False, "created_at": now()}
+        dup = [{k: doc[k]} for k in ("mobile", "email") if doc[k]]
+        existing = await db.contacts.find_one({"org_id": user["org_id"], "$or": dup}, {"_id": 0}) if dup else None
+        if existing:
+            upd = {k: v for k, v in doc.items() if k in FIELDS + ["mobile"] and v}
+            await db.contacts.update_one({"id": existing["id"]}, {"$set": upd})
+            saved.append({**existing, **upd, "duplicate": True})
+            continue
         await db.contacts.insert_one(doc.copy())
         if notify:
             doc["wa_notified"] = await notify_contact(user, org, doc)
@@ -126,7 +133,8 @@ def saved_summary(org, contacts):
     lines = [f"Saved {len(contacts)} contact(s) to *{org['name']}*:"]
     for c in contacts:
         lines.append(f"- {c.get('contact_person') or '-'} | {c.get('company_name') or '-'}" +
-                     (f" | +{c['mobile']}" if c.get("mobile") else ""))
+                     (f" | +{c['mobile']}" if c.get("mobile") else "") +
+                     (" (already existed - updated)" if c.get("duplicate") else ""))
     if any(c.get("wa_notified") for c in contacts):
         lines.append("\nThe contact(s) received your company profile and vCard on WhatsApp.")
     return "\n".join(lines)
