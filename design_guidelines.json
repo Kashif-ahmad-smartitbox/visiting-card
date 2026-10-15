@@ -1,0 +1,195 @@
+{
+  "project_name": "CardPulse AI - WhatsApp B2B Contact Intelligence & Business Card SaaS",
+  "app_type": "saas_app",
+  "archetype": "ARCHETYPE 4: SWISS & HIGH-CONTRAST + ELECTRIC ACCENTS (Tactical Precision & Speed)",
+  "theme": {
+    "default_mode": "dark",
+    "allow_toggle": true,
+    "colors": {
+      "background_dark": "#0B0F17",
+      "surface_dark": "#111827",
+      "surface_card_dark": "#1F2937",
+      "surface_hover_dark": "#374151",
+      "border_dark": "#1E293B",
+      "border_subtle": "rgba(255, 255, 255, 0.08)",
+      "text_primary_dark": "#F9FAFB",
+      "text_secondary_dark": "#9CA3AF",
+      "text_muted_dark": "#6B7280",
+      "primary": "#10B981",
+      "primary_hover": "#059669",
+      "primary_glow": "rgba(16, 185, 129, 0.25)",
+      "secondary_accent": "#3B82F6",
+      "whatsapp_green": "#25D366",
+      "whatsapp_dark": "#075E54",
+      "warning": "#F59E0B",
+      "danger": "#EF4444",
+      "badge_bg_wa": "rgba(37, 211, 102, 0.12)",
+      "badge_text_wa": "#34D399"
+    }
+  },
+  "typography": {
+    "heading_font": "Cabinet Grotesk / Plus Jakarta Sans, sans-serif",
+    "body_font": "Inter / DM Sans, sans-serif",
+    "mono_font": "JetBrains Mono, monospace",
+    "hierarchy": {
+      "h1_hero": "text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight",
+      "h2_section": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight",
+      "h3_card": "text-lg sm:text-xl font-semibold tracking-tight",
+      "body": "text-sm sm:text-base leading-relaxed text-slate-300",
+      "label_mono": "font-mono text-xs uppercase tracking-widest text-emerald-400"
+    }
+  },
+  "layout_strategy": {
+    "spacing_scale": "Generous spacing. Internal padding p-6 to p-8 for cards to avoid border edge collisions.",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "header_nav": "Sticky glassmorphism header backdrop-blur-xl bg-slate-950/80 border-b border-slate-800 z-50",
+    "bento_grid": "High Density Grid (Mode B) for dashboard metrics & Tetris Grid (Mode A) for landing page feature highlights"
+  },
+  "key_features_to_implement": [
+    {
+      "id": "landing_page",
+      "name": "SaaS Marketing Landing Page",
+      "elements": [
+        "Hero section with dynamic scanning animation mockup & CTA 'Start 14-Day Free Trial'",
+        "Live Interactive WA Scanner Simulator widget on landing page",
+        "Key Benefits grid: Auto Extraction, WhatsApp Instant Notification, AI Voice/Text Query Search",
+        "Pricing Tier Cards (Starter, Pro, Enterprise with monthly/annual toggle)",
+        "Trust Badges & Testimonial cards"
+      ]
+    },
+    {
+      "id": "org_registration",
+      "name": "Organisation Onboarding & Registration",
+      "elements": [
+        "Organisation Name, GSTIN number (with auto-verify validation format), Address, Admin Mobile No, Admin Email, Password",
+        "Instant mock WhatsApp Welcome Notification toast + preview message drawer"
+      ]
+    },
+    {
+      "id": "dashboard_overview",
+      "name": "Analytics & Command Dashboard",
+      "elements": [
+        "KPI Cards: Total Contacts, Scanned via WA, Scanned via Panel, AI Extraction Accuracy Rate (%), Pending Review",
+        "Recent Activity feed with realtime status tags (WA Inbound / Manual Upload / Voice Query)",
+        "Quick Action Bar: Upload Cards, Invite Team Member, Test WA Query Simulator"
+      ]
+    },
+    {
+      "id": "visiting_card_bulk_scanner",
+      "name": "Bulk Card Scanner & Extraction Studio",
+      "elements": [
+        "Drag & Drop zone supporting multiple images (JPG/PNG) & PDF files or Live Camera View simulation",
+        "AI Parsing loader state with OCR bounding boxes preview",
+        "Extraction Verification Drawer/Table: Company Name, Address, Contact Person, Email, Mobile, Designation, Confidence Score",
+        "One-click 'Save to Organisation DB' & trigger WA notification dispatch to contact"
+      ]
+    },
+    {
+      "id": "contacts_directory",
+      "name": "Contacts Directory & Intelligence Hub",
+      "elements": [
+        "Search & multi-filter by added-by member, source (WA vs Panel), designation, city/state",
+        "Table view with avatar, contact details, added by user badge, original card image preview modal",
+        "Detail Slide-over Drawer: Full extracted fields, AI Summary, WhatsApp conversation history, export VCard / CSV button"
+      ]
+    },
+    {
+      "id": "team_management",
+      "name": "Team Members & Access Control",
+      "elements": [
+        "Add team member modal: Full Name, Role (Admin/Member/Sales Rep), Registered WhatsApp Mobile Number",
+        "Status indicators (Active / Pending WA Verification)",
+        "Individual team member scan contribution stats"
+      ]
+    },
+    {
+      "id": "wa_query_simulator",
+      "name": "WhatsApp AI Query Test Bench",
+      "elements": [
+        "Interactive Chat Simulator: User types or simulates sending Voice Note ('Send me details of Solar Manufacturers in Gujarat')",
+        "Real-time simulated AI response parsing DB and replying with VCards/Contact text formatted for WhatsApp"
+      ]
+    },
+    {
+      "id": "whatsapp_logs_config",
+      "name": "WhatsApp Cloud API & Activity Logs",
+      "elements": [
+        "Webhook status toggle, API Key / Phone Number ID inputs, Auto-responder message template editor with variables like {{contact_name}}, {{org_name}}, {{vcard_link}}",
+        "Inbound & Outbound message activity audit table"
+      ]
+    }
+  ],
+  "image_urls": {
+    "executives": [
+      {
+        "url": "https://images.unsplash.com/photo-1613496701765-97267d26e3df?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBjb3Jwb3JhdGUlMjBleGVjdXRpdmUlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDB8fHxibGFja3wxNzkyMDg4MzM2fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Executive Portrait 1 - Rajesh Sharma (CEO)"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1600896997793-b8ed3459a17f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBjb3Jwb3JhdGUlMjBleGVjdXRpdmUlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDB8fHxibGFja3wxNzkyMDg4MzM2fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Executive Portrait 2 - Vikram Mehta (VP Sales)"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1584940120505-117038d90b05?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjBjb3Jwb3JhdGUlMjBleGVjdXRpdmUlMjBwb3J0cmFpdCUyMGhlYWRzaG90fGVufDB8fHxibGFja3wxNzkyMDg4MzM2fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Executive Portrait 3 - Anita Desai (Head of Business Dev)"
+      }
+    ],
+    "sample_visiting_cards": [
+      {
+        "id": "card_1",
+        "title": "Apex Industrial Technologies - Director",
+        "name": "Sanjay Verma",
+        "designation": "Managing Director",
+        "company": "Apex Industrial Technologies Pvt Ltd",
+        "email": "sanjay.verma@apexind.com",
+        "mobile": "+91 98201 44512",
+        "address": "Plot 42, GIDC Electronics Zone, Sector 26, Gandhinagar, Gujarat 382028",
+        "gstin": "24AAACA123411Z5",
+        "source": "WhatsApp Inbound",
+        "added_by": "Rohan Gupta (+91 98765 43210)"
+      },
+      {
+        "id": "card_2",
+        "title": "GreenPower Solar Solutions - Sales VP",
+        "name": "Priya Nair",
+        "designation": "VP Commercial Solar",
+        "company": "GreenPower Renewables Enterprise",
+        "email": "priya.nair@greenpowersolar.in",
+        "mobile": "+91 91672 88301",
+        "address": "Suite 804, Infinity Tower B, Cyber City, Gurugram, Haryana 122002",
+        "gstin": "07AABCG9876E1Z2",
+        "source": "Web Panel Bulk Scan",
+        "added_by": "Vikram Mehta (Admin)"
+      }
+    ]
+  },
+  "testing_requirements": {
+    "data_testid_rule": "ALL interactive components MUST include explicit kebab-case data-testid attributes.",
+    "mandatory_test_ids": [
+      "org-register-button",
+      "org-name-input",
+      "org-gstin-input",
+      "org-mobile-input",
+      "bulk-upload-dropzone",
+      "camera-scan-trigger",
+      "extract-cards-button",
+      "contacts-search-input",
+      "contact-filter-source",
+      "contacts-table",
+      "contact-row-[id]",
+      "wa-simulator-input",
+      "wa-simulator-send-button",
+      "add-team-member-button",
+      "wa-api-key-input",
+      "nav-item-[name]"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Use standard JavaScript (.js / .jsx) components.",
+    "Ensure dark mode is sleek (#0B0F17 background, slate-900/80 cards, emerald-500 accents).",
+    "Integrate Lucide Icons for high-fidelity UI elements.",
+    "Implement Sonner toast notifications for instant WhatsApp delivery confirmations and data extraction feedback.",
+    "Provide seamless mock data pre-populated with realistic Indian business profiles and GSTIN numbers.",
+    "Ensure responsive bento-grid layouts for dashboard metrics."
+  ]
+}
